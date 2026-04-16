@@ -1,0 +1,190 @@
+---
+title: "Software_bug_prediction"
+author: "Jishnu jayaprakash"
+date: "2026-01-12"
+output: html_document
+---
+
+```{r}
+library(readxl)
+library(tidyverse)
+software_bug_prediction_6000 <- read_xlsx("C:/Users/ELCOT/OneDrive/Desktop/Clg/college project/jishnu/software_bug_prediction_6000.xlsx")
+library(ggplot2)
+```
+
+```{r}
+
+dim(software_bug_prediction_6000)
+
+```
+
+
+```{r}
+View(software_bug_prediction_6000)
+```
+
+```{r}
+summary(software_bug_prediction_6000)
+```
+
+```{r}
+head(software_bug_prediction_6000)
+```
+
+```{r}
+tail(software_bug_prediction_6000)
+```
+```{r}
+str(software_bug_prediction_6000)
+```
+
+```{r}
+colSums(is.na(software_bug_prediction_6000))
+```
+
+
+
+
+
+```{r}
+#Convert Character Variables to Factors
+software_bug_prediction_6000$FileID=as.factor(software_bug_prediction_6000$FileID)
+software_bug_prediction_6000$ModuleType=as.factor(software_bug_prediction_6000$ModuleType)
+software_bug_prediction_6000$ProgrammingLanguage=as.factor(software_bug_prediction_6000$ProgrammingLanguage)
+software_bug_prediction_6000$CodeReviewStatus=as.factor(software_bug_prediction_6000$CodeReviewStatus)
+software_bug_prediction_6000$BugPresent = factor(software_bug_prediction_6000$BugPresent, labels = c("no", "yes"))
+
+
+```
+
+```{r}
+view(software_bug_prediction_6000)
+```
+
+
+```{r}
+#Number of Records by File ID
+group_by(software_bug_prediction_6000,FileID)%>%summarise(n=n())
+```
+```{r}
+#Number of Software Files by Module Type
+group_by(software_bug_prediction_6000,ModuleType)%>%summarise(n=n())
+
+```
+```{r}
+#Number of Software Files by Programming Language
+group_by(software_bug_prediction_6000,ProgrammingLanguage)%>%summarise(n=n())
+
+```
+
+
+
+```{r}
+#Number of Software Files by Code Review Status
+group_by(software_bug_prediction_6000,CodeReviewStatus)%>%summarise(n=n())
+
+```
+
+```{r}
+library(ggplot2)
+```
+
+```{r}
+ggplot(data = software_bug_prediction_6000, aes(x = BugPresent, fill = BugPresent)) +
+  geom_bar() +
+  labs(title = "Distribution of Bug Presence",
+       x = "Bug Present",
+       y = "Count")
+```
+```{r}
+ggplot(data = software_bug_prediction_6000, aes(x = BugPresent, y = CodeChurn, fill = BugPresent)) +
+  geom_boxplot() +
+  labs(title = "Code Churn vs Bug Presence",
+       x = "Bug Present",
+       y = "Code Churn")
+```
+```{r}
+ggplot(data = software_bug_prediction_6000,aes(x=CodeChurn))+
+geom_histogram(bins = 30,fill="steelblue",color="black")+
+labs(title = "Distribution of code churn",x="code churn",y="frequency")
+```
+
+```{r}
+ggplot(software_bug_prediction_6000,
+       aes(x = ModuleType, fill = BugPresent)) +
+  geom_bar() +
+  labs(
+    title = "Bug Presence by Module Type",
+    x = "Module Typwe",
+    y = "Count"
+  )
+```
+
+```{r}
+ggplot(data=software_bug_prediction_6000,
+       aes(x = "", fill = BugPresent)) +
+  geom_bar() +
+  coord_polar("y")
+```
+
+```{r}
+library(readxl)
+library(caret)
+library(ISLR2)
+```
+
+```{r}
+#70 - 30
+set.seed(123)
+trainIndex <- createDataPartition(software_bug_prediction_6000$BugPresent,
+                                   p = 0.7,
+                                   list = FALSE)
+
+traindata <- software_bug_prediction_6000[trainIndex, ]
+testdata  <- software_bug_prediction_6000[-trainIndex, ]
+```
+
+
+```{r}
+# Build GLM model building
+glm.fit= glm(BugPresent~ LinesOfCode + CyclomaticComplexity +  CodeChurn + DeveloperExperienceYears +
+         PastBugsReported + ModuleType + ProgrammingLanguage + CodeReviewStatus + TestCoveragePercentage +
+           AverageFunctionLength , data = traindata,family = binomial )
+```
+
+```{r}
+summary(glm.fit)
+```
+
+```{r}
+pred_probs_test  <- predict(glm.fit, newdata = testdata, type = "response")
+```
+
+
+```{r}
+pred_probs_test  <- predict(glm.fit, newdata = testdata, type = "response")
+pred_outcomes_test <- ifelse(pred_probs_test>0.5,"Up","Down")
+true_outcomes_test<-testdata$BugPresent
+table(pred_outcomes_test,true_outcomes_test)
+
+```
+```{r}
+(242+680)/(242+244+633 +680)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
